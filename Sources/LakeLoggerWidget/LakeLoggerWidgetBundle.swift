@@ -6,8 +6,14 @@ struct LakeLoggerWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: LakeTimelineProvider()) { entry in
-            LakeLoggerWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+            if #available(iOSApplicationExtension 17.0, *) {
+                LakeLoggerWidgetEntryView(entry: entry)
+                    .containerBackground(.fill.tertiary, for: .widget)
+            } else {
+                LakeLoggerWidgetEntryView(entry: entry)
+                    .padding()
+                    .background()
+            }
         }
         .configurationDisplayName("Lake Logger")
         .description("Shows the latest water level, temperature, power, and weather readings.")
