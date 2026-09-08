@@ -1,0 +1,85 @@
+name: LakeLogger
+options:
+  bundleIdPrefix: com.feslabs
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+targets:
+  LakeLogger:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/LakeLogger
+      - path: Sources/LakeLoggerShared
+    resources:
+      - path: Sources/LakeLogger/Resources.xcassets
+    info:
+      path: Sources/LakeLogger/Info.plist
+      properties:
+        CFBundleDisplayName: Lake Logger
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    entitlements:
+      path: Sources/LakeLogger/LakeLogger.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.feslabs.lakelogger
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.feslabs.lakelogger
+        PRODUCT_NAME: Lake Logger
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: LakeLoggerWidgetExtension
+        embed: true
+
+  LakeLoggerWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/LakeLoggerWidget
+      - path: Sources/LakeLoggerShared
+    resources:
+      - path: Sources/LakeLoggerWidget/Resources.xcassets
+    info:
+      path: Sources/LakeLoggerWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Lake Logger Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Sources/LakeLoggerWidget/LakeLoggerWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.feslabs.lakelogger
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.feslabs.lakelogger.widget
+        PRODUCT_NAME: LakeLoggerWidget
+        SKIP_INSTALL: NO
+
+schemes:
+  LakeLogger:
+    build:
+      targets:
+        LakeLogger: all
+        LakeLoggerWidgetExtension: all
+    run:
+      config: Debug
+    archive:
+      config: Release
