@@ -33,6 +33,16 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Lake Logger")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        DeviceDiagnosticsView()
+                    } label: {
+                        Image(systemName: "wrench.and.screwdriver")
+                    }
+                    .accessibilityLabel("Device Diagnostics")
+                }
+            }
             .refreshable {
                 await viewModel.refreshAll()
             }

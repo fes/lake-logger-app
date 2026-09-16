@@ -63,4 +63,15 @@ enum LakeFormat {
         if seconds < 86400 { return "\(Int(seconds / 3600))h ago" }
         return "\(Int(seconds / 86400))d ago"
     }
+
+    /// A short duration string for a raw seconds count (e.g. device uptime).
+    static func relativeDuration(_ totalSeconds: Int?) -> String {
+        guard let totalSeconds, totalSeconds >= 0 else { return "—" }
+        if totalSeconds < 60 { return "\(totalSeconds)s" }
+        if totalSeconds < 3600 { return "\(totalSeconds / 60)m" }
+        if totalSeconds < 86400 {
+            return "\(totalSeconds / 3600)h \((totalSeconds % 3600) / 60)m"
+        }
+        return "\(totalSeconds / 86400)d \((totalSeconds % 86400) / 3600)h"
+    }
 }

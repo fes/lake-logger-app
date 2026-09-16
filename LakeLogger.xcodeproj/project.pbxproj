@@ -15,17 +15,23 @@
 		3714D9C2A8871E45F7AC6E8B /* Resources.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E52F03B759F81C7E8233A1C /* Resources.xcassets */; };
 		39B8D38548BC1C784758C95F /* SharedReadingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844F842B3FAC3D17CD54FF1 /* SharedReadingCache.swift */; };
 		3C3FB554587C06A5725AF1DA /* DashboardCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C129D9F74463B14AC462B84 /* DashboardCards.swift */; };
+		3F2EB6AF2DDFABC820AF325A /* DeviceApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0FB30133CFED655F8C584A /* DeviceApiClient.swift */; };
+		4264F233AC50A2D3DFB72528 /* DeviceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A8CA02B6FE8B99AA61AA82 /* DeviceStatus.swift */; };
 		4D0D342B729C2D1E95EF4590 /* Resources.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7690DD3B858567A109653110 /* Resources.xcassets */; };
 		55BC449E382BE730C9E6F26B /* ReadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415546EC89EAA69755A51798 /* ReadingViewModel.swift */; };
 		5A98CCCB1EFD32D75E687E61 /* LakeReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = D277BAAB50E12F3FDE278B21 /* LakeReading.swift */; };
 		70D3A89EF6F4B10CF0B2FF3B /* WaterLevelHistoryChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374F77168642CB5E2428FF8F /* WaterLevelHistoryChart.swift */; };
 		75935FFEA7A59F1A2B0B1077 /* LakeLoggerWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C82D4A029FC619940DD77F79 /* LakeLoggerWidgetEntryView.swift */; };
+		84276C49FA1B0E3FB35757EE /* DeviceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A8CA02B6FE8B99AA61AA82 /* DeviceStatus.swift */; };
 		87F96E52E563BC6DA5FFD552 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911D62EBFC9D60F1702DA328 /* ContentView.swift */; };
 		A323C86855E1B88A81667E5C /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4100C19EE32F59A4514D24C /* Provider.swift */; };
 		B43EDBDA6A07CED1939140F7 /* LakeLoggerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C602A0ECE4CCB7F5992ABFC4 /* LakeLoggerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BD282A2B0CA19730D690ED45 /* LakeApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ADDB05082C6AD5D5FE87138 /* LakeApiClient.swift */; };
+		C38787041435962CACA20D6E /* DeviceDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 680EC0214D43A54F7D10BE56 /* DeviceDiagnosticsView.swift */; };
 		DA849F60D045A4146BD0321A /* SharedReadingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844F842B3FAC3D17CD54FF1 /* SharedReadingCache.swift */; };
+		DF34C540E8D4A3503F92E2B8 /* DeviceApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0FB30133CFED655F8C584A /* DeviceApiClient.swift */; };
 		DF96D56C62C97606C8BBF186 /* LakeFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30721516D0CC3AE0E7274377 /* LakeFormat.swift */; };
+		E949E49464D5B223ADCC84F6 /* DeviceDiagnosticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715448AD386B7A378F6FFA99 /* DeviceDiagnosticsViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +66,11 @@
 		3C129D9F74463B14AC462B84 /* DashboardCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardCards.swift; sourceTree = "<group>"; };
 		3C856C08790143712BE256E8 /* LakeLoggerWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LakeLoggerWidgetBundle.swift; sourceTree = "<group>"; };
 		415546EC89EAA69755A51798 /* ReadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewModel.swift; sourceTree = "<group>"; };
+		4C0FB30133CFED655F8C584A /* DeviceApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceApiClient.swift; sourceTree = "<group>"; };
 		4E52F03B759F81C7E8233A1C /* Resources.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources.xcassets; sourceTree = "<group>"; };
+		680EC0214D43A54F7D10BE56 /* DeviceDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiagnosticsView.swift; sourceTree = "<group>"; };
+		715448AD386B7A378F6FFA99 /* DeviceDiagnosticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiagnosticsViewModel.swift; sourceTree = "<group>"; };
+		74A8CA02B6FE8B99AA61AA82 /* DeviceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStatus.swift; sourceTree = "<group>"; };
 		7690DD3B858567A109653110 /* Resources.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources.xcassets; sourceTree = "<group>"; };
 		86E6483BA4B4BAD9DBE1B344 /* LakeLogger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LakeLogger.entitlements; sourceTree = "<group>"; };
 		8844F842B3FAC3D17CD54FF1 /* SharedReadingCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedReadingCache.swift; sourceTree = "<group>"; };
@@ -81,6 +91,8 @@
 			children = (
 				911D62EBFC9D60F1702DA328 /* ContentView.swift */,
 				3C129D9F74463B14AC462B84 /* DashboardCards.swift */,
+				680EC0214D43A54F7D10BE56 /* DeviceDiagnosticsView.swift */,
+				715448AD386B7A378F6FFA99 /* DeviceDiagnosticsViewModel.swift */,
 				F2DBF4D61D95B62770FF9623 /* Info.plist */,
 				86E6483BA4B4BAD9DBE1B344 /* LakeLogger.entitlements */,
 				22248AF45CD34549E9A6B4BC /* LakeLoggerApp.swift */,
@@ -124,6 +136,8 @@
 		9F4F0CB940329D78DEB355DE /* LakeLoggerShared */ = {
 			isa = PBXGroup;
 			children = (
+				4C0FB30133CFED655F8C584A /* DeviceApiClient.swift */,
+				74A8CA02B6FE8B99AA61AA82 /* DeviceStatus.swift */,
 				9ADDB05082C6AD5D5FE87138 /* LakeApiClient.swift */,
 				30721516D0CC3AE0E7274377 /* LakeFormat.swift */,
 				D277BAAB50E12F3FDE278B21 /* LakeReading.swift */,
@@ -238,6 +252,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F2EB6AF2DDFABC820AF325A /* DeviceApiClient.swift in Sources */,
+				84276C49FA1B0E3FB35757EE /* DeviceStatus.swift in Sources */,
 				BD282A2B0CA19730D690ED45 /* LakeApiClient.swift in Sources */,
 				DF96D56C62C97606C8BBF186 /* LakeFormat.swift in Sources */,
 				1F86B8CEA3C9242B7FD1E9BA /* LakeLoggerWidgetBundle.swift in Sources */,
@@ -254,6 +270,10 @@
 			files = (
 				87F96E52E563BC6DA5FFD552 /* ContentView.swift in Sources */,
 				3C3FB554587C06A5725AF1DA /* DashboardCards.swift in Sources */,
+				DF34C540E8D4A3503F92E2B8 /* DeviceApiClient.swift in Sources */,
+				C38787041435962CACA20D6E /* DeviceDiagnosticsView.swift in Sources */,
+				E949E49464D5B223ADCC84F6 /* DeviceDiagnosticsViewModel.swift in Sources */,
+				4264F233AC50A2D3DFB72528 /* DeviceStatus.swift in Sources */,
 				1B24A621BB93B9A28AA2924F /* LakeApiClient.swift in Sources */,
 				0BF4E3B8150BB11C71C0C37E /* LakeFormat.swift in Sources */,
 				3222C2F6D1CF335C8ABEE15E /* LakeLoggerApp.swift in Sources */,

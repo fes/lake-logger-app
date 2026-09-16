@@ -33,6 +33,12 @@ targets:
           - UIInterfaceOrientationLandscapeRight
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
+        NSLocalNetworkUsageDescription: >-
+          Lake Logger can talk directly to your logger device over your
+          local Wi-Fi network to show live diagnostics and status, even
+          when the device hasn't uploaded to the cloud yet.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
     entitlements:
       path: Sources/LakeLogger/LakeLogger.entitlements
       properties:
