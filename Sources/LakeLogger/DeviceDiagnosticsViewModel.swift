@@ -5,8 +5,10 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
     @Published var ipAddress: String
     @Published private(set) var status: DeviceStatus?
     @Published private(set) var probe: DeviceProbeReading?
+    @Published private(set) var selfTest: DeviceRs485SelfTestResult?
     @Published private(set) var isLoading = false
     @Published private(set) var isResetting = false
+    @Published private(set) var isRunningSelfTest = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var lastCheckedAt: Date?
 
@@ -15,6 +17,7 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
     /// firmware returns -- not just the subset this app's UI displays.
     private var lastStatusRawJSON: String?
     private var lastProbeRawJSON: String?
+    private var lastSelfTestRawJSON: String?
     private var lastErrorContext: String?
 
     private let api = DeviceApiClient()
@@ -63,6 +66,29 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
         }
     }
 
+    /// Runs the on-demand RS-485 bridge self-test (`POST /rs485/selftest`).
+    /// This is a loopback test of the SC16IS752 bridge/UART core itself,
+    /// not the physical bus or sensors -- it can pass even if a sensor is
+    /// disconnected, and can fail even if the sensor would otherwise be
+    /// reachable, so it's presented alongside (not instead of) the probe.
+    func triggerSelfTest() async {
+        saveAddress()
+        isRunningSelfTest = true
+        errorMessage = nil
+        defer { isRunningSelfTest = false }
+
+        do {
+            let (value, rawJSON) = try await api.triggerRs485SelfTest()
+            selfTest = value
+            lastSelfTestRawJSON = rawJSON
+            lastCheckedAt = Date()
+        } catch {
+            selfTest = nil
+            errorMessage = error.localizedDescription
+            lastErrorContext = "POST /rs485/selftest failed: \(error)"
+        }
+    }
+
     func rebootDevice() async {
         saveAddress()
         isResetting = true
@@ -73,8 +99,10 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
             try await api.reset()
             status = nil
             probe = nil
+            selfTest = nil
             lastStatusRawJSON = nil
             lastProbeRawJSON = nil
+            lastSelfTestRawJSON = nil
         } catch {
             errorMessage = error.localizedDescription
             lastErrorContext = "GET /reset failed: \(error)"
@@ -82,9 +110,10 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
     }
 
     /// Builds a plain-text diagnostic report -- app/device metadata plus the
-    /// full raw `/status` and `/probe` JSON last fetched -- formatted so a
-    /// user can paste it directly into an AI assistant (Copilot, ChatGPT,
-    /// etc.) or a support ticket without needing to screenshot anything.
+    /// full raw `/status`, `/probe`, and `/rs485/selftest` JSON last
+    /// fetched -- formatted so a user can paste it directly into an AI
+    /// assistant (Copilot, ChatGPT, etc.) or a support ticket without
+    /// needing to screenshot anything.
     var diagnosticsReportText: String {
         var lines: [String] = []
         lines.append("Lake Logger device diagnostics report")
@@ -108,10 +137,14 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
         lines.append("--- /probe ---")
         lines.append(lastProbeRawJSON ?? "(not fetched yet)")
 
+        lines.append("")
+        lines.append("--- /rs485/selftest ---")
+        lines.append(lastSelfTestRawJSON ?? "(not run yet)")
+
         return lines.joined(separator: "\n")
     }
 
     var hasReportContent: Bool {
-        lastStatusRawJSON != nil || lastProbeRawJSON != nil || errorMessage != nil
+        lastStatusRawJSON != nil || lastProbeRawJSON != nil || lastSelfTestRawJSON != nil || errorMessage != nil
     }
 }

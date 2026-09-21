@@ -38,6 +38,12 @@ struct DeviceDiagnosticsView: View {
                 } label: {
                     Label("Trigger live sensor probe", systemImage: "bolt.horizontal.circle")
                 }
+                Button {
+                    Task { await viewModel.triggerSelfTest() }
+                } label: {
+                    Label("Run RS-485 bridge self-test", systemImage: "waveform.path.ecg")
+                }
+                .disabled(viewModel.isRunningSelfTest)
                 Button(role: .destructive) {
                     showResetConfirmation = true
                 } label: {
@@ -46,7 +52,7 @@ struct DeviceDiagnosticsView: View {
                 .disabled(viewModel.isResetting)
             }
 
-            if viewModel.isLoading || viewModel.isResetting {
+            if viewModel.isLoading || viewModel.isResetting || viewModel.isRunningSelfTest {
                 Section {
                     HStack {
                         Spacer()
@@ -69,6 +75,10 @@ struct DeviceDiagnosticsView: View {
 
             if let probe = viewModel.probe {
                 probeSection(probe)
+            }
+
+            if let selfTest = viewModel.selfTest {
+                selfTestSection(selfTest)
             }
 
             if viewModel.hasReportContent {
@@ -117,6 +127,30 @@ struct DeviceDiagnosticsView: View {
             diagnosticRow("Solar voltage", LakeFormat.volts(status.cachedProbeSolarInputVoltageV))
             diagnosticRow("Battery charge", LakeFormat.percent(status.batteryChargeLevelPctApprox))
         }
+
+        Section("RS-485 bridge") {
+            diagnosticRow("Modbus failures (total)", status.modbusFailureTotal.map(String.init))
+            diagnosticRow("Solinst failures (consecutive)", status.consecutiveSolinstModbusFailures.map(String.init))
+            diagnosticRow("Weather failures (consecutive)", status.consecutiveWeatherModbusFailures.map(String.init))
+            diagnosticRow("Bridge recovery attempts", status.rs485BridgeRecoveryAttempts.map(String.init))
+            diagnosticRow("Bridge recovery successes", status.rs485BridgeRecoverySuccesses.map(String.init))
+            bridgeHealthRow(
+                "Solinst channel",
+                supported: status.rs485SolinstBridgeHealthSupported,
+                overrun: status.rs485SolinstBridgeOverrunError,
+                parity: status.rs485SolinstBridgeParityError,
+                framing: status.rs485SolinstBridgeFramingError,
+                breakDetected: status.rs485SolinstBridgeBreakDetected
+            )
+            bridgeHealthRow(
+                "Weather channel",
+                supported: status.rs485WeatherBridgeHealthSupported,
+                overrun: status.rs485WeatherBridgeOverrunError,
+                parity: status.rs485WeatherBridgeParityError,
+                framing: status.rs485WeatherBridgeFramingError,
+                breakDetected: status.rs485WeatherBridgeBreakDetected
+            )
+        }
     }
 
     @ViewBuilder
@@ -127,6 +161,72 @@ struct DeviceDiagnosticsView: View {
             diagnosticRow("Water temperature", LakeFormat.celsius(probe.temperatureC))
             diagnosticRow("Air temperature", LakeFormat.celsius(probe.weatherAirTemperatureC))
             diagnosticRow("Humidity", LakeFormat.percent(probe.weatherRelativeHumidityPct))
+        }
+    }
+
+    @ViewBuilder
+    private func selfTestSection(_ result: DeviceRs485SelfTestResult) -> some View {
+        Section {
+            selfTestRow("Solinst channel", supported: result.solinstSelftestSupported, passed: result.solinstSelftestPassed)
+            selfTestRow("Weather channel", supported: result.weatherSelftestSupported, passed: result.weatherSelftestPassed)
+        } header: {
+            Text("RS-485 self-test result")
+        } footer: {
+            Text("An internal loopback test of the bridge/UART core, not the physical bus or sensors -- it can pass even with a sensor disconnected.")
+        }
+    }
+
+    /// A single "channel: pass/fail" row for the self-test result, styled to
+    /// stand out (green/red) since this is the one diagnostic that directly
+    /// answers "is the shared bridge chip itself OK" independent of sensor
+    /// wiring or the sensor's own responsiveness.
+    private func selfTestRow(_ label: String, supported: Bool?, passed: Bool?) -> some View {
+        HStack {
+            Text(label)
+            Spacer()
+            if supported == false {
+                Text("Not supported")
+                    .foregroundStyle(.secondary)
+            } else if let passed {
+                Label(passed ? "Passed" : "Failed", systemImage: passed ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundStyle(passed ? .green : .red)
+            } else {
+                Text("—")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    /// A compact "no errors" / "flag list" row for continuous bridge
+    /// line-status monitoring (distinct from the on-demand self-test above).
+    private func bridgeHealthRow(
+        _ label: String,
+        supported: Bool?,
+        overrun: Bool?,
+        parity: Bool?,
+        framing: Bool?,
+        breakDetected: Bool?
+    ) -> some View {
+        let flags: [String] = [
+            overrun == true ? "overrun" : nil,
+            parity == true ? "parity" : nil,
+            framing == true ? "framing" : nil,
+            breakDetected == true ? "break" : nil,
+        ].compactMap { $0 }
+
+        return HStack {
+            Text(label)
+            Spacer()
+            if supported == false {
+                Text("Not supported")
+                    .foregroundStyle(.secondary)
+            } else if flags.isEmpty {
+                Text("No errors")
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(flags.joined(separator: ", "))
+                    .foregroundStyle(.orange)
+            }
         }
     }
 

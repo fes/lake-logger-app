@@ -105,6 +105,14 @@ struct DeviceApiClient {
         }
     }
 
+    /// Triggers `POST /rs485/selftest`: an internal loopback test of the
+    /// SC16IS752 bridge/UART core on both RS-485 channels (not the physical
+    /// bus or the downstream sensors). Manually triggered only -- it's
+    /// disruptive to any in-flight Modbus transaction on these channels.
+    func triggerRs485SelfTest() async throws -> (value: DeviceRs485SelfTestResult, rawJSON: String) {
+        try await post(path: "rs485/selftest")
+    }
+
     /// Fetches and decodes `path`, also returning the raw response body as
     /// text. The raw text is kept (not just the typed model) so a user can
     /// export/share the *complete* response -- including any fields not
@@ -116,6 +124,23 @@ struct DeviceApiClient {
         request.timeoutInterval = 6
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
 
+        return try await send(request: request)
+    }
+
+    /// Same as `get`, but issues a `POST` with an empty body -- used for
+    /// manually-triggered actions (like the RS-485 self-test) that the
+    /// firmware deliberately doesn't accept over `GET`, so an accidental
+    /// link click/prefetch can't trigger a disruptive diagnostic.
+    private func post<T: Decodable>(path: String) async throws -> (value: T, rawJSON: String) {
+        let url = try baseURL().appendingPathComponent(path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 6
+
+        return try await send(request: request)
+    }
+
+    private func send<T: Decodable>(request: URLRequest) async throws -> (value: T, rawJSON: String) {
         let data: Data
         let response: URLResponse
         do {

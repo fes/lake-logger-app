@@ -48,6 +48,26 @@ struct DeviceStatus: Codable {
     var cachedProbeSolarInputVoltageV: Double?
     var batteryChargeLevelPctApprox: Double?
 
+    var modbusFailureTotal: Int?
+    var consecutiveSolinstModbusFailures: Int?
+    var consecutiveWeatherModbusFailures: Int?
+    var rs485BridgeRecoveryAttempts: Int?
+    var rs485BridgeRecoverySuccesses: Int?
+
+    var rs485SolinstBridgeHealthSupported: Bool?
+    var rs485SolinstBridgeLineStatusRegister: Int?
+    var rs485SolinstBridgeOverrunError: Bool?
+    var rs485SolinstBridgeParityError: Bool?
+    var rs485SolinstBridgeFramingError: Bool?
+    var rs485SolinstBridgeBreakDetected: Bool?
+
+    var rs485WeatherBridgeHealthSupported: Bool?
+    var rs485WeatherBridgeLineStatusRegister: Int?
+    var rs485WeatherBridgeOverrunError: Bool?
+    var rs485WeatherBridgeParityError: Bool?
+    var rs485WeatherBridgeFramingError: Bool?
+    var rs485WeatherBridgeBreakDetected: Bool?
+
     enum CodingKeys: String, CodingKey {
         case deviceId = "device_id"
         case siteHealth = "site_health"
@@ -83,6 +103,42 @@ struct DeviceStatus: Codable {
         case cachedProbeBatteryOutputVoltageV = "cached_probe_battery_output_voltage_v"
         case cachedProbeSolarInputVoltageV = "cached_probe_solar_input_voltage_v"
         case batteryChargeLevelPctApprox = "battery_charge_level_pct_approx"
+        case modbusFailureTotal = "modbus_failure_total"
+        case consecutiveSolinstModbusFailures = "consecutive_solinst_modbus_failures"
+        case consecutiveWeatherModbusFailures = "consecutive_weather_modbus_failures"
+        case rs485BridgeRecoveryAttempts = "rs485_bridge_recovery_attempts"
+        case rs485BridgeRecoverySuccesses = "rs485_bridge_recovery_successes"
+        case rs485SolinstBridgeHealthSupported = "rs485_solinst_bridge_health_supported"
+        case rs485SolinstBridgeLineStatusRegister = "rs485_solinst_bridge_line_status_register"
+        case rs485SolinstBridgeOverrunError = "rs485_solinst_bridge_overrun_error"
+        case rs485SolinstBridgeParityError = "rs485_solinst_bridge_parity_error"
+        case rs485SolinstBridgeFramingError = "rs485_solinst_bridge_framing_error"
+        case rs485SolinstBridgeBreakDetected = "rs485_solinst_bridge_break_detected"
+        case rs485WeatherBridgeHealthSupported = "rs485_weather_bridge_health_supported"
+        case rs485WeatherBridgeLineStatusRegister = "rs485_weather_bridge_line_status_register"
+        case rs485WeatherBridgeOverrunError = "rs485_weather_bridge_overrun_error"
+        case rs485WeatherBridgeParityError = "rs485_weather_bridge_parity_error"
+        case rs485WeatherBridgeFramingError = "rs485_weather_bridge_framing_error"
+        case rs485WeatherBridgeBreakDetected = "rs485_weather_bridge_break_detected"
+    }
+}
+
+/// Mirrors the on-demand `POST /rs485/selftest` endpoint: runs an internal
+/// loopback test of the SC16IS752 bridge/UART core for each RS-485 channel
+/// (Solinst + weather), independent of whether the downstream sensor
+/// itself is responding. Disruptive to any in-flight Modbus transaction on
+/// these channels, so this is only triggered manually, never polled.
+struct DeviceRs485SelfTestResult: Codable {
+    var solinstSelftestSupported: Bool?
+    var solinstSelftestPassed: Bool?
+    var weatherSelftestSupported: Bool?
+    var weatherSelftestPassed: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case solinstSelftestSupported = "solinst_selftest_supported"
+        case solinstSelftestPassed = "solinst_selftest_passed"
+        case weatherSelftestSupported = "weather_selftest_supported"
+        case weatherSelftestPassed = "weather_selftest_passed"
     }
 }
 
