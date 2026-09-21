@@ -68,6 +68,20 @@ struct DeviceStatus: Codable {
     var rs485WeatherBridgeFramingError: Bool?
     var rs485WeatherBridgeBreakDetected: Bool?
 
+    var displayBehavior: String?
+    var displayBackend: String?
+    var displayPresent: Bool?
+    var displayAwake: Bool?
+    var displayWakeRemainingMs: Int?
+    var lastDisplayWakeRequestUtc: String?
+    var lastDisplayWakeRequestAge: String?
+    var lastDisplayRefreshUtc: String?
+    var lastDisplayRefreshAge: String?
+    var displayRefreshCount: Int?
+    var displayI2cRecoveryCount: Int?
+    var displayLinkFailures: Int?
+    var displayLastError: String?
+
     enum CodingKeys: String, CodingKey {
         case deviceId = "device_id"
         case siteHealth = "site_health"
@@ -120,6 +134,19 @@ struct DeviceStatus: Codable {
         case rs485WeatherBridgeParityError = "rs485_weather_bridge_parity_error"
         case rs485WeatherBridgeFramingError = "rs485_weather_bridge_framing_error"
         case rs485WeatherBridgeBreakDetected = "rs485_weather_bridge_break_detected"
+        case displayBehavior = "display_behavior"
+        case displayBackend = "display_backend"
+        case displayPresent = "display_present"
+        case displayAwake = "display_awake"
+        case displayWakeRemainingMs = "display_wake_remaining_ms"
+        case lastDisplayWakeRequestUtc = "last_display_wake_request_utc"
+        case lastDisplayWakeRequestAge = "last_display_wake_request_age"
+        case lastDisplayRefreshUtc = "last_display_refresh_utc"
+        case lastDisplayRefreshAge = "last_display_refresh_age"
+        case displayRefreshCount = "display_refresh_count"
+        case displayI2cRecoveryCount = "display_i2c_recovery_count"
+        case displayLinkFailures = "display_link_failures"
+        case displayLastError = "display_last_error"
     }
 }
 
@@ -139,6 +166,24 @@ struct DeviceRs485SelfTestResult: Codable {
         case solinstSelftestPassed = "solinst_selftest_passed"
         case weatherSelftestSupported = "weather_selftest_supported"
         case weatherSelftestPassed = "weather_selftest_passed"
+    }
+}
+
+/// Mirrors the response shape shared by every `/display/<command>` endpoint
+/// (`status`, `refresh`, `clear`, `pause`, `resume`, `reboot`, `sleep`):
+/// the firmware runs the requested display command and reports whether it
+/// succeeded, which backend is attached, and any human-readable detail.
+/// `GET /display/status` queries without side effects; the rest are
+/// POST-only since they change display state.
+struct DeviceDisplayCommandResult: Codable {
+    var ok: Bool?
+    var displayBackend: String?
+    var response: String?
+
+    enum CodingKeys: String, CodingKey {
+        case ok
+        case displayBackend = "display_backend"
+        case response
     }
 }
 

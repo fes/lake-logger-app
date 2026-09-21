@@ -113,6 +113,17 @@ struct DeviceApiClient {
         try await post(path: "rs485/selftest")
     }
 
+    /// Runs a display command (`status`, `refresh`, `clear`, `pause`,
+    /// `resume`, `reboot`, or `sleep`) via `/display/<command>`. `status`
+    /// is a read-only `GET`; every other command mutates display state and
+    /// is `POST`-only by firmware design.
+    func runDisplayCommand(_ command: String) async throws -> (value: DeviceDisplayCommandResult, rawJSON: String) {
+        if command == "status" {
+            return try await get(path: "display/status")
+        }
+        return try await post(path: "display/\(command)")
+    }
+
     /// Fetches and decodes `path`, also returning the raw response body as
     /// text. The raw text is kept (not just the typed model) so a user can
     /// export/share the *complete* response -- including any fields not

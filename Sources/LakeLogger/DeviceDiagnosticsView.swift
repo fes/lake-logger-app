@@ -52,7 +52,46 @@ struct DeviceDiagnosticsView: View {
                 .disabled(viewModel.isResetting)
             }
 
-            if viewModel.isLoading || viewModel.isResetting || viewModel.isRunningSelfTest {
+            Section("Display") {
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("status") }
+                } label: {
+                    Label("Check display status", systemImage: "rectangle.and.text.magnifyingglass")
+                }
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("refresh") }
+                } label: {
+                    Label("Refresh display", systemImage: "arrow.triangle.2.circlepath")
+                }
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("clear") }
+                } label: {
+                    Label("Clear display", systemImage: "rectangle.slash")
+                }
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("pause") }
+                } label: {
+                    Label("Pause display updates", systemImage: "pause.circle")
+                }
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("resume") }
+                } label: {
+                    Label("Resume display updates", systemImage: "play.circle")
+                }
+                Button {
+                    Task { await viewModel.triggerDisplayCommand("sleep") }
+                } label: {
+                    Label("Deep-sleep display", systemImage: "moon.zzz")
+                }
+                Button(role: .destructive) {
+                    Task { await viewModel.triggerDisplayCommand("reboot") }
+                } label: {
+                    Label("Reboot display", systemImage: "power")
+                }
+            }
+            .disabled(viewModel.isRunningDisplayCommand)
+
+            if viewModel.isLoading || viewModel.isResetting || viewModel.isRunningSelfTest || viewModel.isRunningDisplayCommand {
                 Section {
                     HStack {
                         Spacer()
@@ -79,6 +118,10 @@ struct DeviceDiagnosticsView: View {
 
             if let selfTest = viewModel.selfTest {
                 selfTestSection(selfTest)
+            }
+
+            if let displayResult = viewModel.displayResult {
+                displayResultSection(displayResult, command: viewModel.lastDisplayCommand)
             }
 
             if viewModel.hasReportContent {
@@ -126,6 +169,18 @@ struct DeviceDiagnosticsView: View {
             diagnosticRow("Battery voltage", LakeFormat.volts(status.cachedProbeBatteryOutputVoltageV))
             diagnosticRow("Solar voltage", LakeFormat.volts(status.cachedProbeSolarInputVoltageV))
             diagnosticRow("Battery charge", LakeFormat.percent(status.batteryChargeLevelPctApprox))
+        }
+
+        Section("Display") {
+            diagnosticRow("Behavior", status.displayBehavior)
+            diagnosticRow("Backend", status.displayBackend)
+            diagnosticRow("Present", status.displayPresent.map { $0 ? "Yes" : "No" })
+            diagnosticRow("Awake", status.displayAwake.map { $0 ? "Yes" : "No" })
+            diagnosticRow("Last refresh", status.lastDisplayRefreshAge)
+            diagnosticRow("Refresh count", status.displayRefreshCount.map(String.init))
+            diagnosticRow("I2C recovery count", status.displayI2cRecoveryCount.map(String.init))
+            diagnosticRow("Link failures", status.displayLinkFailures.map(String.init))
+            diagnosticRow("Last error", status.displayLastError?.isEmpty == false ? status.displayLastError : "None")
         }
 
         Section("RS-485 bridge") {
@@ -227,6 +282,18 @@ struct DeviceDiagnosticsView: View {
                 Text(flags.joined(separator: ", "))
                     .foregroundStyle(.orange)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func displayResultSection(_ result: DeviceDisplayCommandResult, command: String?) -> some View {
+        Section {
+            diagnosticRow("Command", command)
+            diagnosticRow("Result", result.ok.map { $0 ? "OK" : "Failed" })
+            diagnosticRow("Display backend", result.displayBackend)
+            diagnosticRow("Response detail", result.response?.isEmpty == false ? result.response : "None")
+        } header: {
+            Text("Display command result")
         }
     }
 

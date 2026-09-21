@@ -6,9 +6,12 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
     @Published private(set) var status: DeviceStatus?
     @Published private(set) var probe: DeviceProbeReading?
     @Published private(set) var selfTest: DeviceRs485SelfTestResult?
+    @Published private(set) var displayResult: DeviceDisplayCommandResult?
+    @Published private(set) var lastDisplayCommand: String?
     @Published private(set) var isLoading = false
     @Published private(set) var isResetting = false
     @Published private(set) var isRunningSelfTest = false
+    @Published private(set) var isRunningDisplayCommand = false
     @Published private(set) var errorMessage: String?
     @Published private(set) var lastCheckedAt: Date?
 
@@ -18,6 +21,7 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
     private var lastStatusRawJSON: String?
     private var lastProbeRawJSON: String?
     private var lastSelfTestRawJSON: String?
+    private var lastDisplayCommandRawJSON: String?
     private var lastErrorContext: String?
 
     private let api = DeviceApiClient()
@@ -100,12 +104,38 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
             status = nil
             probe = nil
             selfTest = nil
+            displayResult = nil
+            lastDisplayCommand = nil
             lastStatusRawJSON = nil
             lastProbeRawJSON = nil
             lastSelfTestRawJSON = nil
+            lastDisplayCommandRawJSON = nil
         } catch {
             errorMessage = error.localizedDescription
             lastErrorContext = "GET /reset failed: \(error)"
+        }
+    }
+
+    /// Runs a display command (`status`, `refresh`, `clear`, `pause`,
+    /// `resume`, `reboot`, or `sleep`) via `/display/<command>`, the Inkplate
+    /// e-paper display's own local control API. `status` is read-only; the
+    /// rest actively change the attached display's state.
+    func triggerDisplayCommand(_ command: String) async {
+        saveAddress()
+        isRunningDisplayCommand = true
+        errorMessage = nil
+        defer { isRunningDisplayCommand = false }
+
+        do {
+            let (value, rawJSON) = try await api.runDisplayCommand(command)
+            displayResult = value
+            lastDisplayCommand = command
+            lastDisplayCommandRawJSON = rawJSON
+            lastCheckedAt = Date()
+        } catch {
+            displayResult = nil
+            errorMessage = error.localizedDescription
+            lastErrorContext = "/display/\(command) failed: \(error)"
         }
     }
 
@@ -141,10 +171,15 @@ final class DeviceDiagnosticsViewModel: ObservableObject {
         lines.append("--- /rs485/selftest ---")
         lines.append(lastSelfTestRawJSON ?? "(not run yet)")
 
+        lines.append("")
+        lines.append("--- /display/\(lastDisplayCommand ?? "?") ---")
+        lines.append(lastDisplayCommandRawJSON ?? "(not run yet)")
+
         return lines.joined(separator: "\n")
     }
 
     var hasReportContent: Bool {
-        lastStatusRawJSON != nil || lastProbeRawJSON != nil || lastSelfTestRawJSON != nil || errorMessage != nil
+        lastStatusRawJSON != nil || lastProbeRawJSON != nil || lastSelfTestRawJSON != nil
+            || lastDisplayCommandRawJSON != nil || errorMessage != nil
     }
 }
