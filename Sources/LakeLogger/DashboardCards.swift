@@ -32,6 +32,7 @@ struct StatusHeaderView: View {
 
 struct WaterLevelCardView: View {
     let reading: LakeReading
+    var unitSystem: UnitSystem = .metric
 
     var body: some View {
         HStack(spacing: 24) {
@@ -39,7 +40,7 @@ struct WaterLevelCardView: View {
                 Label("Water Level", systemImage: "water.waves")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(LakeFormat.meters(reading.waterLevelM))
+                Text(LakeFormat.meters(reading.waterLevelM, unitSystem: unitSystem))
                     .font(.title.bold())
             }
             Divider()
@@ -47,7 +48,7 @@ struct WaterLevelCardView: View {
                 Label("Water Temp", systemImage: "thermometer.medium")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(LakeFormat.celsius(reading.temperatureC))
+                Text(LakeFormat.celsius(reading.temperatureC, unitSystem: unitSystem))
                     .font(.title.bold())
             }
             Spacer()
@@ -133,6 +134,7 @@ struct BatterySolarCardView: View {
 
 struct WeatherCardView: View {
     let reading: LakeReading
+    var unitSystem: UnitSystem = .metric
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -153,14 +155,14 @@ struct WeatherCardView: View {
                     .foregroundStyle(.orange)
             } else {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                    weatherStat("Air Temp", LakeFormat.celsius(reading.weatherAirTemperatureC))
+                    weatherStat("Air Temp", LakeFormat.celsius(reading.weatherAirTemperatureC, unitSystem: unitSystem))
                     weatherStat("Humidity", LakeFormat.humidity(reading.weatherRelativeHumidityPct))
-                    weatherStat("Pressure", LakeFormat.pressure(reading.weatherBarometricPressureHpa))
+                    weatherStat("Pressure", LakeFormat.pressure(reading.weatherBarometricPressureHpa, unitSystem: unitSystem))
                     weatherStat(
                         "Wind",
-                        "\(LakeFormat.windSpeed(reading.weatherWindSpeedMS)) \(LakeFormat.compassDirection(reading.weatherWindDirectionDeg))"
+                        "\(LakeFormat.windSpeed(reading.weatherWindSpeedMS, unitSystem: unitSystem)) \(LakeFormat.compassDirection(reading.weatherWindDirectionDeg))"
                     )
-                    weatherStat("Rainfall", LakeFormat.rainfall(reading.weatherRainfallMm))
+                    weatherStat("Rainfall", LakeFormat.rainfall(reading.weatherRainfallMm, unitSystem: unitSystem))
                     if let lux = reading.weatherLightLux {
                         weatherStat("Light", String(format: "%.0f lux", lux))
                     }

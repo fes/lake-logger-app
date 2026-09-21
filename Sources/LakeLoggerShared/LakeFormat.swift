@@ -1,14 +1,21 @@
 import Foundation
 
 enum LakeFormat {
-    static func meters(_ value: Double?, fractionDigits: Int = 3) -> String {
+    /// Water level, unit-converted per `unitSystem` (defaults to metric so
+    /// existing callers, e.g. the widget, are unaffected until they opt in).
+    static func meters(_ value: Double?, unitSystem: UnitSystem = .metric, fractionDigits: Int? = nil) -> String {
         guard let value else { return "—" }
-        return String(format: "%.\(fractionDigits)f m", value)
+        let converted = GraphSeries.waterLevel.displayValue(value, unitSystem: unitSystem)
+        let digits = fractionDigits ?? (unitSystem == .imperial ? 2 : 3)
+        return String(format: "%.\(digits)f \(GraphSeries.waterLevel.unitLabel(unitSystem: unitSystem))", converted)
     }
 
-    static func celsius(_ value: Double?, fractionDigits: Int = 1) -> String {
+    /// Temperature, unit-converted per `unitSystem`. Used for both water and
+    /// ambient/air temperature -- the C-to-F conversion is identical.
+    static func celsius(_ value: Double?, unitSystem: UnitSystem = .metric, fractionDigits: Int = 1) -> String {
         guard let value else { return "—" }
-        return String(format: "%.\(fractionDigits)f°C", value)
+        let converted = GraphSeries.waterTemperature.displayValue(value, unitSystem: unitSystem)
+        return String(format: "%.\(fractionDigits)f\(GraphSeries.waterTemperature.unitLabel(unitSystem: unitSystem))", converted)
     }
 
     static func percent(_ value: Double?, fractionDigits: Int = 0) -> String {
@@ -26,23 +33,28 @@ enum LakeFormat {
         return String(format: "%.\(fractionDigits)fA", value)
     }
 
-    static func windSpeed(_ metersPerSecond: Double?) -> String {
+    static func windSpeed(_ metersPerSecond: Double?, unitSystem: UnitSystem = .metric) -> String {
         guard let metersPerSecond else { return "—" }
-        return String(format: "%.1f m/s", metersPerSecond)
+        let converted = GraphSeries.windSpeed.displayValue(metersPerSecond, unitSystem: unitSystem)
+        return String(format: "%.1f \(GraphSeries.windSpeed.unitLabel(unitSystem: unitSystem))", converted)
     }
 
     static func humidity(_ value: Double?) -> String {
         percent(value, fractionDigits: 0)
     }
 
-    static func pressure(_ hpa: Double?) -> String {
+    static func pressure(_ hpa: Double?, unitSystem: UnitSystem = .metric, fractionDigits: Int? = nil) -> String {
         guard let hpa else { return "—" }
-        return String(format: "%.0f hPa", hpa)
+        let converted = GraphSeries.barometricPressure.displayValue(hpa, unitSystem: unitSystem)
+        let digits = fractionDigits ?? (unitSystem == .imperial ? 2 : 0)
+        return String(format: "%.\(digits)f \(GraphSeries.barometricPressure.unitLabel(unitSystem: unitSystem))", converted)
     }
 
-    static func rainfall(_ mm: Double?) -> String {
+    static func rainfall(_ mm: Double?, unitSystem: UnitSystem = .metric) -> String {
         guard let mm else { return "—" }
-        return String(format: "%.1f mm", mm)
+        let converted = GraphSeries.rainfall.displayValue(mm, unitSystem: unitSystem)
+        let digits = unitSystem == .imperial ? 2 : 1
+        return String(format: "%.\(digits)f \(GraphSeries.rainfall.unitLabel(unitSystem: unitSystem))", converted)
     }
 
     static func compassDirection(_ degrees: Double?) -> String {

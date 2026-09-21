@@ -12,7 +12,7 @@ final class ReadingViewModel: ObservableObject {
     private let api: LakeApiClient
     private(set) var historyDays: Int
 
-    init(api: LakeApiClient = .shared, historyDays: Int = 7) {
+    init(api: LakeApiClient = .shared, historyDays: Int = AppSettingsStore.loadHistoryDays()) {
         self.api = api
         self.historyDays = historyDays
 

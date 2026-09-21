@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = ReadingViewModel()
+    @StateObject private var settingsViewModel = SettingsViewModel()
 
     var body: some View {
         NavigationStack {
@@ -9,11 +10,15 @@ struct ContentView: View {
                 VStack(spacing: 16) {
                     if let reading = viewModel.reading {
                         StatusHeaderView(reading: reading, lastFetchedAt: viewModel.lastFetchedAt)
-                        WaterLevelCardView(reading: reading)
+                        WaterLevelCardView(reading: reading, unitSystem: settingsViewModel.unitSystem)
                         BatterySolarCardView(reading: reading)
-                        WeatherCardView(reading: reading)
+                        WeatherCardView(reading: reading, unitSystem: settingsViewModel.unitSystem)
                         if !viewModel.history.isEmpty {
-                            WaterLevelHistoryChart(readings: viewModel.history)
+                            HistoryChartsSection(
+                                readings: viewModel.history,
+                                selectedGraphs: settingsViewModel.selectedGraphs,
+                                unitSystem: settingsViewModel.unitSystem
+                            )
                         }
                     } else if viewModel.isLoading {
                         ProgressView("Loading latest reading…")
@@ -36,6 +41,14 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
+                        SettingsView(viewModel: settingsViewModel)
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("Settings")
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
                         DeviceDiagnosticsView()
                     } label: {
                         Image(systemName: "wrench.and.screwdriver")
@@ -48,6 +61,9 @@ struct ContentView: View {
             }
             .task {
                 await viewModel.refreshAll()
+            }
+            .onChange(of: settingsViewModel.historyDays) { newValue in
+                Task { await viewModel.setHistoryDays(newValue) }
             }
         }
     }
