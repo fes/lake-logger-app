@@ -3,6 +3,14 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = ReadingViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+
+    /// How often to auto-retry the current/history fetch while this view is
+    /// visible. Guards against a single dropped/cancelled request (e.g. from
+    /// a brief network hiccup or the app being backgrounded mid-request)
+    /// leaving a stale error banner on screen indefinitely with no way to
+    /// self-heal short of the user manually pulling to refresh.
+    private static let autoRefreshInterval: Duration = .seconds(60)
 
     var body: some View {
         NavigationStack {
@@ -60,10 +68,25 @@ struct ContentView: View {
                 await viewModel.refreshAll()
             }
             .task {
-                await viewModel.refreshAll()
+                // Loop instead of a one-shot fetch so a transient failure
+                // (timeout, cancellation, brief connectivity drop) doesn't
+                // leave the UI stuck showing a stale error forever.
+                while !Task.isCancelled {
+                    await viewModel.refreshAll()
+                    try? await Task.sleep(for: Self.autoRefreshInterval)
+                }
             }
             .onChange(of: settingsViewModel.historyDays) { newValue in
                 Task { await viewModel.setHistoryDays(newValue) }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                // Refresh immediately when the app comes back to the
+                // foreground, rather than waiting for the next auto-refresh
+                // tick, so returning from the background always shows
+                // current data.
+                if newPhase == .active {
+                    Task { await viewModel.refreshAll() }
+                }
             }
         }
     }
